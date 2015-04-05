@@ -54,8 +54,8 @@ translator = BingTranslator.new(options[:client_id], options[:secret])
 
 source = IO.read(options[:source])
 
-#using pdf doc_type shouldn't be mandatory
-segmenter = PragmaticSegmenter::Segmenter.new(text: source, language: source_lang, doc_type: 'pdf')
+#add option to use pdf doc_type
+segmenter = PragmaticSegmenter::Segmenter.new(text: source, language: source_lang)
 source_segments = segmenter.segment
 
 puts "Checking translation of first sentence:"
