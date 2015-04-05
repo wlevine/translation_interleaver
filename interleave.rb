@@ -84,12 +84,15 @@ end
 def correlate_texts(source,mt,translation)
   index_s = 0
   index_t = 0
-  min_words = 10
+  min_words = 0#10
   max_sentences_to_group = 5
   results = []  
+  #what if things don't end so nicely?
+  #after the loop I should append the remainder
   while index_s < source.size && index_t < translation.size
     puts "["
 
+    #what I want to is vary this base number if appropriate!
     base_num_sentences_s = 1
     base_num_sentences_t = 1
 
@@ -107,25 +110,26 @@ def correlate_texts(source,mt,translation)
     #The idea here is that we will either group EXACTLY one source sentence with 1 <= N <= 5 translation sentences OR we will group EXACTLY one translation sentence with 1 <= N <= 5 source sentences.
     #The exception to this rule is for short sentences. If we have a sentence (or group of sentences) less than 10 words, we will allow it to attach to a larger sentence (before or after), even in cases where normally we would only allow one sentence.
     max_sentences_to_group.times do |i|
-      #Group base source sentence with next i+1 source sentences
-      #If permissible, also try grouping translation with next j sentences
-      best_score,best_num_sentences_s,best_num_sentences_t = check_score(best_score,best_num_sentences_s,best_num_sentences_t,base_num_sentences_s+i+1,base_num_sentences_t,mt,index_s,translation,index_t)
-      #if the next sentences in translation are short, we must check them here
-      #look ahead in the translation by j+1 sentences until we have enough words for the sentences to stand by themselves
-      j=0
-      while construct_comparandum(translation,index_t+base_num_sentences_t,j+1).size < min_words
-        break if index_t+base_num_sentences_t+j+1 >= translation.size
-        best_score,best_num_sentences_s,best_num_sentences_t = check_score(best_score,best_num_sentences_s,best_num_sentences_t,base_num_sentences_s+i+1,base_num_sentences_t+j+1,mt,index_s,translation,index_t)
-        j += 1
+      #Test grouping base source sentence with next i+1 source sentences
+      #If permissible, also try grouping base translation sentence with extra sentences
+      extra_s = i+1
+      extra_t = 0
+      while (index_s+base_num_sentences_s+extra_s <= source.size && index_t+base_num_sentences_t+extra_t <= translation.size)
+        best_score,best_num_sentences_s,best_num_sentences_t = check_score(best_score,best_num_sentences_s,best_num_sentences_t,base_num_sentences_s+extra_s,base_num_sentences_t+extra_t,mt,index_s,translation,index_t)
+        break unless (construct_comparandum(translation,index_t,base_num_sentences_t+extra_t).size < min_words ||
+                      construct_comparandum(translation,index_t+base_num_sentences_t,extra_t+1).size < min_words)
+        extra_t += 1
       end
-      #look ahead in target by i+1 sentences
-      best_score,best_num_sentences_s,best_num_sentences_t = check_score(best_score,best_num_sentences_s,best_num_sentences_t,base_num_sentences_s,base_num_sentences_t+i+1,mt,index_s,translation,index_t)
-      #if the next sentences in mt are short, we must check them here
-      j=0
-      while construct_comparandum(mt,index_s+base_num_sentences_s,j+1).size < min_words
-        break if index_s+base_num_sentences_s+j+1 >= source.size
-        best_score,best_num_sentences_s,best_num_sentences_t = check_score(best_score,best_num_sentences_s,best_num_sentences_t,base_num_sentences_s+j+1,base_num_sentences_t+i+1,mt,index_s,translation,index_t)
-        j += 1
+
+      #Test grouping base translation sentence with next i+1 sentences
+      #If permissible, also try grouping base source sentence with extra sentences
+      extra_s = 0
+      extra_t = i+1
+      while (index_s+base_num_sentences_s+extra_s <= source.size && index_t+base_num_sentences_t+extra_t <= translation.size)
+        best_score,best_num_sentences_s,best_num_sentences_t = check_score(best_score,best_num_sentences_s,best_num_sentences_t,base_num_sentences_s+extra_s,base_num_sentences_t+extra_t,mt,index_s,translation,index_t)
+        break unless (construct_comparandum(translation,index_s,base_num_sentences_s+extra_s).size < min_words ||
+                      construct_comparandum(translation,index_s+base_num_sentences_s,extra_s+1).size < min_words)
+        extra_s += 1
       end
     end
 
