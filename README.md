@@ -1,10 +1,10 @@
-This is a tool for displaying interleaved translations.
+This is a tool for displaying a text together with its translation so that each sentence from the source text is followed by its translation.
 
 You provide a source text and a (human) translated text and machine translation is used to correlate sentences between the two texts and then display the two texts interleaved.
 
 Here is an example of the output:
 
-This requires the bing\_translator gem and the pragmatic\_segmenter gem.
+This tool requires the bing\_translator gem and the pragmatic\_segmenter gem.
 
 Before running, you will need a (free) Client ID and secret for Microsoft translator.
 
