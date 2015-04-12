@@ -73,8 +73,6 @@ def check_score(best_score,best_num1,best_num2,try_num1,try_num2,text1,index1,te
 
   score = base_score*next_level_score
 
-  puts merge_sentences(text1,index1,try_num1)
-
   if score > best_score
     best_score = score
     best_num1 = try_num1
@@ -214,9 +212,19 @@ end
 
 results = correlate_texts(source,mt,translation)
 
-results.each do |group|
-  puts group[0] #source
-  puts group[1] #mt
-  puts group[2] #translation
-  puts "."
+File.open(options[:output],'w:UTF-8') do |file|
+  file.puts "<html>"
+  file.puts "<head>"
+  file.puts "<meta charset='utf-8'>"
+  file.puts "<style>"
+  file.puts "p.source { color:red }"
+  file.puts "</style>"
+  file.puts "</head>"
+  file.puts "<body>"
+  results.each do |group|
+    file.puts "<p class='source'>#{group[0]}</p>"
+    file.puts "<p class='translation'>#{group[2]}</p>"
+  end
+  file.puts "</body>"
+  file.puts "</html>"
 end
